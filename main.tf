@@ -27,8 +27,10 @@ provider "aws" {
   region = "ap-southeast-1"
 }
 
+data "aws_caller_identity" "current" {}
+
 resource "aws_s3_bucket" "my_bucket" {
-  bucket = "mi-bucket-ejemplo-terraform"  # Cambia esto a un nombre único
+  bucket = "mi-bucket-${data.aws_caller_identity.current.account_id}"
 
   tags = {
     Name        = "MyS3Bucket"
