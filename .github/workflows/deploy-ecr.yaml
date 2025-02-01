@@ -3,7 +3,7 @@ name: Deploy to Amazon ECR
 on:
   push:
     branches:
-      - master
+      - masteasasr
 
 jobs:
   push-to-ecr:
@@ -65,3 +65,5 @@ jobs:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
           service: service-postgres-node-2
           cluster: prodCluster
+
+      
