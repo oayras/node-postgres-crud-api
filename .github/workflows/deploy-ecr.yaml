@@ -36,25 +36,25 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-    #   - name: Build, tag, and push Docker image to Amazon ECR
-    #     env:
-    #       REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-    #       REPOSITORY: ${{ github.repository }}
-    #       IMAGE_TAG: ${{ github.sha }}
-    #     run: |
-    #       docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-    #       docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
-
-    #   - name: Fill in the new image ID in the Amazon ECS task definition
-    #     id: task-def
-    #     uses: aws-actions/amazon-ecs-render-task-definition@v1
-    #     with:
-    #       task-definition-arn: arn:aws:ecs:ap-southeast-1:891377374403:task-definition/def-postgres-node-2:3
-    #       task-definition: nodejs-app-task-definition.json 
-    #       container-name: nodejs-app
-    #       image: ${{ steps.build-image.outputs.image }}
-
+      - name: Build, tag, and push Docker image to Amazon ECR
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: ${{ github.repository }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+    
+    
       - name: Download task definition 
         run: |
             aws ecs describe-task-definition --task-definition def-postgres-node-2 --query taskDefinition > task-definition.json
             cat task-definition.json
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json 
+          container-name: nodejs-app2
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ github.repository }}:${{ github.sha }}
