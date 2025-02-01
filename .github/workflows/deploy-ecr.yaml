@@ -56,5 +56,5 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json 
-          container-name: nodejs-app2
+          container-name: postgres-node-2
           image: ${{ steps.login-ecr.outputs.registry }}/${{ github.repository }}:${{ github.sha }}
