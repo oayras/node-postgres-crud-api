@@ -27,13 +27,46 @@ provider "aws" {
   region = "ap-southeast-1"
 }
 
-data "aws_caller_identity" "current" {}
+resource "aws_lb_target_group" "fargate_tg" {
+  name        = "fargate-tg"
+  target_type = "ip"
+  port        = 3000
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
 
-resource "aws_s3_bucket" "my_bucket" {
-  bucket = "mi-bucket-${data.aws_caller_identity.current.account_id}"
+  health_check {
+    path                = "/"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 3
+    unhealthy_threshold = 2
+    matcher             = "200-299"
+  }
+}
 
-  tags = {
-    Name        = "MyS3Bucket"
-    Environment = "Development"
+# Obtener el ARN del listener a partir del ALB
+data "aws_lb" "existing_alb" {
+  name = var.alb_name
+}
+
+data "aws_lb_listener" "https_listener" {
+  load_balancer_arn = data.aws_lb.existing_alb.arn
+  port              = 443
+}
+
+# Crear la regla en el listener
+resource "aws_lb_listener_rule" "host_based_routing" {
+  listener_arn = data.aws_lb_listener.https_listener.arn
+  priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.fargate_tg.arn
+  }
+
+  condition {
+    host_header {
+      values = ["oayras.footydao.xyz"]
+    }
   }
 }
