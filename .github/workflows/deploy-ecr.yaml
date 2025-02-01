@@ -56,5 +56,5 @@ jobs:
 
       - name: Download task definition 
         run: |
-            aws ecs describe-task-definition - task-definition etap-development - query taskDefinition > task-definition.json
+            aws ecs describe-task-definition --task-definition def-postgres-node-2 --query taskDefinition > task-definition.json
             cat task-definition.json
