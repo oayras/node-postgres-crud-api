@@ -8,8 +8,6 @@ env:
   TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
   TF_WORKSPACE: "wsp-init-provisioning"
   CONFIG_DIRECTORY: "./"
-  TF_VAR_vpc_id: ${{ secrets.TF_VAR_VPC_ID }}
-  TF_VAR_alb_name: ${{ secrets.TF_VAR_ALB_NAME }}
 
 jobs:
   terraform:
