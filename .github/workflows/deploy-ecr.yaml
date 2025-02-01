@@ -58,3 +58,10 @@ jobs:
           task-definition: task-definition.json 
           container-name: postgres-node-2
           image: ${{ steps.login-ecr.outputs.registry }}/${{ github.repository }}:${{ github.sha }}
+
+      - name: Deploy to Amazon ECS service
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: service-postgres-node-2
+          cluster: prodCluster
