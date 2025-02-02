@@ -1,12 +1,23 @@
 name: "Terraform Apply"
 
+# on:
+#   push:
+#     branches:
+#       - main
+#   pull_request:
+#     types:
+#       - closed
+
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    types:
-      - closed
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+          - prod
 
 env:
   TF_CLOUD_ORGANIZATION: "quantum2025"
