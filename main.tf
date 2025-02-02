@@ -61,9 +61,9 @@ data "aws_security_group" "ecs_tasks" {
 }
 
 resource "aws_lb_target_group" "fargate_tg" {
-  name        = "service-${var.app.name}"
+  name        = "service-${var.name}"
   target_type = "ip"
-  port        = var.app.port
+  port        = var.port
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.selected.id
 
@@ -108,7 +108,7 @@ resource "aws_lb_listener_rule" "host_based_routing" {
 }
 
 resource "aws_ecs_task_definition" "app" {
-  family                   = "def-${var.app.name}"
+  family                   = "def-${var.name}"
   requires_compatibilities = ["FARGATE"]
   network_mode            = "awsvpc"
   cpu                     = 256
@@ -117,19 +117,19 @@ resource "aws_ecs_task_definition" "app" {
 
   container_definitions = jsonencode([
     {
-      name      = var.app.name
-      image     = var.app.image  # Reemplaza con tu imagen
+      name      = var.name
+      image     = var.image  # Reemplaza con tu imagen
       essential = true
       portMappings = [
         {
-          containerPort = var.app.port
+          containerPort = var.port
           protocol      = "tcp"
         }
       ]
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          "awslogs-group"         = "/ecs/${var.app.name}"
+          "awslogs-group"         = "/ecs/${var.name}"
           "awslogs-region"        = "ap-southeast-1"  # Reemplaza con tu región
           "awslogs-stream-prefix" = "ecs"
         }
@@ -140,7 +140,7 @@ resource "aws_ecs_task_definition" "app" {
 
 # ECS Service
 resource "aws_ecs_service" "app" {
-  name            = "service-${var.app.name}"
+  name            = "service-${var.name}"
   cluster         = data.aws_ecs_cluster.existing.cluster_name
   task_definition = aws_ecs_task_definition.app.arn
   desired_count   = 2
@@ -154,7 +154,7 @@ resource "aws_ecs_service" "app" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.fargate_tg.arn
-    container_name   = var.app.name
-    container_port   = var.app.port
+    container_name   = var.name
+    container_port   = var.port
   }
 }

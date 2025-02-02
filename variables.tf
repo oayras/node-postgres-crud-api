@@ -39,21 +39,17 @@ variable "environment" {
   type        = string
 }
 
-variable "app" {
-  description = "Configuración de la aplicación"
-  type = object({
-    name     = string
-    image    = string
-    port     = number
-    cpu      = number
-    memory   = number
-  })
-  default = {
-    name     = "mi-aplicacion"
-    image    = "mi-imagen:latest"
-    port     = 80
-    cpu      = 256
-    memory   = 512
-  }
+variable "name" {
+  description = "Nombre de app"
+  type        = string
 }
 
+variable "image" {
+  description = "Image de app"
+  type        = string
+}
+
+variable "port" {
+  description = "port de app"
+  type        = string
+}
