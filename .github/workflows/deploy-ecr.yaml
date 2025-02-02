@@ -1,9 +1,9 @@
 name: Deploy to Amazon ECR
 
 on:
-  # push:
-  #   branches:
-  #     - masteasasr
+  push:
+    branches:
+      - masteasasr
 
 jobs:
   push-to-ecr:
