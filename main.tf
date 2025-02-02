@@ -27,12 +27,45 @@ provider "aws" {
   region = "ap-southeast-1"
 }
 
+# Data sources para recursos existentes
+data "aws_vpc" "selected" {
+  tags = {
+    Environment = var.environment
+    Reason = "migration"
+  }
+}
+
+data "aws_subnets" "private" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.selected.id]
+  }
+  tags = {
+    Environment = var.environment
+    Tier       = "private"
+    Reason = "migration"
+  }
+}
+
+data "aws_ecs_cluster" "existing" {
+  cluster_name = "${var.environment}Cluster"
+}
+
+data "aws_security_group" "ecs_tasks" {
+  vpc_id = data.aws_vpc.selected.id
+  tags = {
+    Name        = "sg-${var.environment}-ecs-tasks"
+    Environment = var.environment
+    Reason = "migration"
+  }
+}
+
 resource "aws_lb_target_group" "fargate_tg" {
-  name        = "fargate-tg"
+  name        = "service-${var.name}"
   target_type = "ip"
-  port        = 3000
+  port        = var.port
   protocol    = "HTTP"
-  vpc_id      = var.vpc_id
+  vpc_id      = data.aws_vpc.selected.id
 
   health_check {
     path                = "/"
@@ -44,13 +77,16 @@ resource "aws_lb_target_group" "fargate_tg" {
   }
 }
 
-# Obtener el ARN del listener a partir del ALB
-data "aws_lb" "existing_alb" {
-  name = var.alb_name
+data "aws_lb" "existing" {
+  tags = {
+    Name        = "lb-${var.environment}-01"
+    Environment = var.environment
+    Reason = "migration"
+  }
 }
 
 data "aws_lb_listener" "https_listener" {
-  load_balancer_arn = data.aws_lb.existing_alb.arn
+  load_balancer_arn = data.aws_lb.existing.arn
   port              = 443
 }
 
@@ -68,5 +104,57 @@ resource "aws_lb_listener_rule" "host_based_routing" {
     host_header {
       values = ["oayras.footydao.xyz"]
     }
+  }
+}
+
+resource "aws_ecs_task_definition" "app" {
+  family                   = "def-${var.name}"
+  requires_compatibilities = ["FARGATE"]
+  network_mode            = "awsvpc"
+  cpu                     = 256
+  memory                  = 512
+  execution_role_arn      = var.execution_role_arn
+
+  container_definitions = jsonencode([
+    {
+      name      = var.name
+      image     = var.image  # Reemplaza con tu imagen
+      essential = true
+      portMappings = [
+        {
+          containerPort = var.port
+          protocol      = "tcp"
+        }
+      ]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = "/ecs/${var.name}"
+          "awslogs-region"        = "ap-southeast-1"  # Reemplaza con tu región
+          "awslogs-stream-prefix" = "ecs"
+        }
+      }
+    }
+  ])
+}
+
+# ECS Service
+resource "aws_ecs_service" "app" {
+  name            = "service-${var.name}"
+  cluster         = data.aws_ecs_cluster.existing.cluster_name
+  task_definition = aws_ecs_task_definition.app.arn
+  desired_count   = 2
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = data.aws_subnets.private.ids
+    security_groups  = [data.aws_security_group.ecs_tasks.id]
+    assign_public_ip = false
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.fargate_tg.arn
+    container_name   = var.name
+    container_port   = var.port
   }
 }
