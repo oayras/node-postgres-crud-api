@@ -53,3 +53,8 @@ variable "port" {
   description = "port de app"
   type        = number
 }
+
+variable "fqdn" {
+  description = "fqdn"
+  type        = string
+}
