@@ -24,7 +24,7 @@ terraform {
 }
 
 provider "aws" {
-  region = "ap-southeast-1"
+  region = var.aws_region
 }
 
 # Data sources para recursos existentes
@@ -61,9 +61,9 @@ data "aws_security_group" "ecs_tasks" {
 }
 
 resource "aws_lb_target_group" "fargate_tg" {
-  name        = "service-${var.name}"
+  name        = "service-${var.repoName}"
   target_type = "ip"
-  port        = var.port
+  port        = var.appPort
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.selected.id
 
@@ -108,7 +108,7 @@ resource "aws_lb_listener_rule" "host_based_routing" {
 }
 
 resource "aws_ecs_task_definition" "app" {
-  family                   = "def-${var.name}"
+  family                   = "def-${var.repoName}"
   requires_compatibilities = ["FARGATE"]
   network_mode            = "awsvpc"
   cpu                     = 256
@@ -117,20 +117,20 @@ resource "aws_ecs_task_definition" "app" {
 
   container_definitions = jsonencode([
     {
-      name      = var.name
+      name      = var.repoName
       image     = var.image  # Reemplaza con tu imagen
       essential = true
       portMappings = [
         {
-          containerPort = var.port
+          containerPort = var.appPort
           protocol      = "tcp"
         }
       ]
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          "awslogs-group"         = "/ecs/centrallogs"
-          "awslogs-region"        = "ap-southeast-1"  # Reemplaza con tu región
+          "awslogs-group"         = var.cloudwatch_loggruop
+          "awslogs-region"        = var.aws_region 
           "awslogs-stream-prefix" = "ecs"
         }
       }
@@ -140,7 +140,7 @@ resource "aws_ecs_task_definition" "app" {
 
 # ECS Service
 resource "aws_ecs_service" "app" {
-  name            = "service-${var.name}"
+  name            = "service-${var.repoName}"
   cluster         = data.aws_ecs_cluster.existing.cluster_name
   task_definition = aws_ecs_task_definition.app.arn
   desired_count   = 1
@@ -154,7 +154,7 @@ resource "aws_ecs_service" "app" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.fargate_tg.arn
-    container_name   = var.name
-    container_port   = var.port
+    container_name   = var.repoName
+    container_port   = var.appPort
   }
 }

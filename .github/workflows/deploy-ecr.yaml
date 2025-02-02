@@ -14,56 +14,59 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-southeast-1  # Cambia esto a la región donde tienes tu ECR
+      - name: asas
+        run: echo "Repository name is ${{ github.event.repository.name }}"
 
-      - name: Check if ECR repository exists, create if not
-        env:
-          REPOSITORY: ${{ github.repository }}  # Cambia esto por el nombre de tu repositorio
-        run: |
-            if ! aws ecr describe-repositories --repository-names $REPOSITORY > /dev/null 2>&1; then
-                echo "Repository $REPOSITORY does not exist. Creating..."
-                aws ecr create-repository --repository-name $REPOSITORY
-            else
-                echo "Repository $REPOSITORY already exists."
-            fi
+      # - name: Configure AWS credentials
+      #   uses: aws-actions/configure-aws-credentials@v2
+      #   with:
+      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ap-southeast-1  # Cambia esto a la región donde tienes tu ECR
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+      # - name: Check if ECR repository exists, create if not
+      #   env:
+      #     REPOSITORY: ${{ github.repository }}  # Cambia esto por el nombre de tu repositorio
+      #   run: |
+      #       if ! aws ecr describe-repositories --repository-names $REPOSITORY > /dev/null 2>&1; then
+      #           echo "Repository $REPOSITORY does not exist. Creating..."
+      #           aws ecr create-repository --repository-name $REPOSITORY
+      #       else
+      #           echo "Repository $REPOSITORY already exists."
+      #       fi
 
-      - name: Build, tag, and push Docker image to Amazon ECR
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: ${{ github.repository }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+      # - name: Login to Amazon ECR
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v2
+
+      # - name: Build, tag, and push Docker image to Amazon ECR
+      #   env:
+      #     REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      #     REPOSITORY: ${{ github.repository }}
+      #     IMAGE_TAG: ${{ github.sha }}
+      #   run: |
+      #     docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+      #     docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
     
     
-      - name: Download task definition 
-        run: |
-            aws ecs describe-task-definition --task-definition def-postgres-node-2 --query taskDefinition > task-definition.json
-            cat task-definition.json
+      # - name: Download task definition 
+      #   run: |
+      #       aws ecs describe-task-definition --task-definition def-postgres-node-2 --query taskDefinition > task-definition.json
+      #       cat task-definition.json
 
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: task-definition.json 
-          container-name: postgres-node-2
-          image: ${{ steps.login-ecr.outputs.registry }}/${{ github.repository }}:${{ github.sha }}
+      # - name: Fill in the new image ID in the Amazon ECS task definition
+      #   id: task-def
+      #   uses: aws-actions/amazon-ecs-render-task-definition@v1
+      #   with:
+      #     task-definition: task-definition.json 
+      #     container-name: postgres-node-2
+      #     image: ${{ steps.login-ecr.outputs.registry }}/${{ github.repository }}:${{ github.sha }}
 
-      - name: Deploy to Amazon ECS service
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: service-postgres-node-2
-          cluster: prodCluster
+      # - name: Deploy to Amazon ECS service
+      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      #   with:
+      #     task-definition: ${{ steps.task-def.outputs.task-definition }}
+      #     service: service-postgres-node-2
+      #     cluster: prodCluster
 
       

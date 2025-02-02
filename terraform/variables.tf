@@ -4,11 +4,11 @@ variable "execution_role_arn" {
 }
 
 variable "environment" {
-  description = "Ambiente de despliegue (dev, staging, prod)"
+  description = "Could be (dev, staging, prod)"
   type        = string
 }
 
-variable "name" {
+variable "repoName" {
   description = "Nombre de app"
   type        = string
 }
@@ -18,7 +18,7 @@ variable "image" {
   type        = string
 }
 
-variable "port" {
+variable "appPort" {
   description = "port de app"
   type        = number
 }
@@ -26,4 +26,14 @@ variable "port" {
 variable "fqdn" {
   description = "fqdn"
   type        = string
+}
+
+variable "aws_region" {
+  type = string
+  description = "AWS region"
+}
+
+variable "cloudwatch_loggruop" {
+  type = string
+  description = "Log group for cloudwatch"
 }
