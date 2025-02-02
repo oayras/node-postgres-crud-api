@@ -72,7 +72,7 @@ jobs:
           cloudwatch_loggroup = "${{ vars.AWS_LOG_GROUP }}"
           execution_role_arn = "${{ vars.AWS_EXECUTION_ROLE }}"
           fqdn = "${{ vars.APP_FQDN }}"
-          image = $IMAGE_TAG
+          image =  "${{ steps.login-ecr.outputs.registry }}/${{ github.repository }}:${{ github.sha }}"
           EOF
 
       - name: Upload Configuration
