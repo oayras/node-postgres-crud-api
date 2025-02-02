@@ -31,7 +31,7 @@ provider "aws" {
 data "aws_vpc" "selected" {
   tags = {
     Environment = var.environment
-    Reason = migration
+    Reason = "migration"
   }
 }
 
