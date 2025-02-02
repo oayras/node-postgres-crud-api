@@ -86,7 +86,7 @@ data "aws_lb" "existing" {
 }
 
 data "aws_lb_listener" "https_listener" {
-  load_balancer_arn = data.aws_lb.existing_alb.arn
+  load_balancer_arn = data.aws_lb.existing.arn
   port              = 443
 }
 
