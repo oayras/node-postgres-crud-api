@@ -129,7 +129,7 @@ resource "aws_ecs_task_definition" "app" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          "awslogs-group"         = "/ecs/${var.name}"
+          "awslogs-group"         = "/ecs/centrallogs"
           "awslogs-region"        = "ap-southeast-1"  # Reemplaza con tu región
           "awslogs-stream-prefix" = "ecs"
         }
