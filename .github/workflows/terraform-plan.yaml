@@ -35,8 +35,8 @@ jobs:
       - name: Generate terraform.tfvars
         run: |
           cat << EOF > terraform/terraform.tfvars
-          repoName = "${{ github.event.inputs.entorno }}"
-          appPort = "${{ github.event.inputs.version }}"
+          repoName = "${{ github.event.repository.name }}"
+          appPort = "${{ vars.APP_PORT }}"
           EOF
         env:
           INPUT_ENVIRONMENT: ${{ github.event.inputs.environment }}
