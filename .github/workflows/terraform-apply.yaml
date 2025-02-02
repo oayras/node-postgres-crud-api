@@ -12,7 +12,7 @@ env:
   TF_CLOUD_ORGANIZATION: "quantum2025"
   TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
   TF_WORKSPACE: "wsp-init-provisioning"
-  CONFIG_DIRECTORY: "./"
+  CONFIG_DIRECTORY: "./terraform"
 
 
 jobs:
