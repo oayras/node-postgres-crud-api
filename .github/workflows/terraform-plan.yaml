@@ -72,7 +72,7 @@ jobs:
           cloudwatch_loggroup = "${{ vars.AWS_LOG_GROUP }}"
           execution_role_arn = "${{ vars.AWS_EXECUTION_ROLE }}"
           fqdn = "${{ vars.APP_FQDN }}"
-          environment = "${{ inputs.environment }} "
+          environment = "${{ inputs.environment }}"
           image =  "${{ steps.login-ecr.outputs.registry }}/${{ github.repository }}:${{ github.sha }}"
           EOF
 
