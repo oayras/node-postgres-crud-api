@@ -70,8 +70,8 @@ jobs:
           alb_name = ${{ vars.AWS_ALB_NAME }}
           aws_region = ${{ vars.AWS_REGION }}
           cloudwatch_loggroup = "${{ vars.AWS_LOG_GROUP }}"
-          execution_role_arn = ${{ vars.AWS_EXECUTION_ROLE }}
-          fqdn = ${{ vars.APP_FQDN }}
+          execution_role_arn = "${{ vars.AWS_EXECUTION_ROLE }}"
+          fqdn = "${{ vars.APP_FQDN }}"
           image = $IMAGE_TAG
           EOF
 
