@@ -1,7 +1,17 @@
 name: "Terraform Plan"
 
 on:
-    pull_request:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+          - dev
+          - test
+          - prod
 
 env:
   TF_CLOUD_ORGANIZATION: "quantum2025"
@@ -21,6 +31,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Generate terraform.tfvars
+        run: |
+          cat << EOF > terraform/terraform.tfvars
+          repoName = "${{ github.event.inputs.entorno }}"
+          appPort = "${{ github.event.inputs.version }}"
+          EOF
+        env:
+          INPUT_ENVIRONMENT: ${{ github.event.inputs.environment }}
 
       - name: Upload Configuration
         uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
