@@ -51,5 +51,5 @@ variable "image" {
 
 variable "port" {
   description = "port de app"
-  type        = string
+  type        = number
 }
