@@ -37,3 +37,9 @@ variable "cloudwatch_loggroup" {
   type = string
   description = "Log group for cloudwatch"
 }
+
+variable "environment_file" {
+  description = "Environment file in S3 (optional)"
+  type        = string
+  default     = null
+}

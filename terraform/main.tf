@@ -126,6 +126,16 @@ resource "aws_ecs_task_definition" "app" {
           protocol      = "tcp"
         }
       ]
+      environment = [
+        for env in [
+          { name = "PORT", value = null }
+        ] : env if env.value != null && env.value != ""
+      ]
+      environmentFiles = var.environment_file != null ? [{
+        value = var.environment_file
+        type  = "s3"
+      }] : null
+
       logConfiguration = {
         logDriver = "awslogs"
         options = {
