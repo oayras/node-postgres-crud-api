@@ -7,6 +7,7 @@ on:
 
 jobs:
   push-to-ecr:
+    if: github.ref == 'refs/heads/master'
     name: Build and Push Docker Image to Amazon ECR
     runs-on: ubuntu-latest
 

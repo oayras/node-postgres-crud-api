@@ -20,7 +20,7 @@ env:
 
 jobs:
   terraform:
-    if: github.repository == 'oayras/node-postgres-crud-api'
+    if: github.ref == 'refs/heads/master'
     name: "Terraform Apply"
     runs-on: ubuntu-latest
     permissions: # granular permissions
