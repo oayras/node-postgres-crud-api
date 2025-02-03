@@ -3,7 +3,7 @@ name: Deploy to Amazon ECR
 on:
   push:
     branches:
-      - masteasasr
+      - master
 
 jobs:
   push-to-ecr:
@@ -48,22 +48,21 @@ jobs:
     
       - name: Download task definition 
         run: |
-            aws ecs describe-task-definition --task-definition def-postgres-node-2 --query taskDefinition > task-definition.json
-            cat task-definition.json
+            aws ecs describe-task-definition --task-definition def-${{ github.event.repository.name }} --query taskDefinition > task-definition.json
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json 
-          container-name: postgres-node-2
+          container-name: ${{ github.event.repository.name }}
           image: ${{ steps.login-ecr.outputs.registry }}/${{ github.repository }}:${{ github.sha }}
 
       - name: Deploy to Amazon ECS service
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: service-postgres-node-2
+          service: service-${{ github.event.repository.name }}
           cluster: prodCluster
 
       

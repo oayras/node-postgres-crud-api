@@ -33,7 +33,7 @@ variable "aws_region" {
   description = "AWS region"
 }
 
-variable "cloudwatch_loggruop" {
+variable "cloudwatch_loggroup" {
   type = string
   description = "Log group for cloudwatch"
 }
