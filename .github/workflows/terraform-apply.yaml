@@ -1,13 +1,5 @@
 name: "Terraform Apply"
 
-# on:
-#   push:
-#     branches:
-#       - main
-#   pull_request:
-#     types:
-#       - closed
-
 on:
   workflow_dispatch:
     inputs:
@@ -20,9 +12,9 @@ on:
           - prod
 
 env:
-  TF_CLOUD_ORGANIZATION: "quantum2025"
+  TF_CLOUD_ORGANIZATION: ${{ vars.TF_ORGANIZATION }}
   TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
-  TF_WORKSPACE: "wsp-init-provisioning"
+  TF_WORKSPACE: ${{ vars.TF_WORKSPACE }}
   CONFIG_DIRECTORY: "./terraform"
 
 
