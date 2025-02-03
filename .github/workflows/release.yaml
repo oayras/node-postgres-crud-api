@@ -3,7 +3,7 @@ name: Deploy to Amazon ECR
 on:
   push:
     branches:
-      - masteasasr
+      - master
 
 jobs:
   push-to-ecr:
